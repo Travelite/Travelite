@@ -11,6 +11,7 @@ if (isset($_POST["submit"])) {
     $imageName = $image['name'];
     $imagesDir = "pictures/";
     $imagePath = $imagesDir . $imageName;
+    echo $image . "<br/>";
     
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
 
@@ -71,7 +72,8 @@ $fullName = $user['fullName'] ? $user['fullName'] : "No name";
                             echo "<img class='profilePic' width='100' height='100' src='". $profilePic ."' alt='Default Profile Pic'>";
                             echo "<br>";
                         ?>
-                    <form method="post" enctype="multipart/form-data">
+                    </form>
+                    <form method="post" enctype="multipart/form-data" action="editUser.php">
                         <input type="file" name="avatar">
                         <input type="submit" name="submit">
                     </form>
