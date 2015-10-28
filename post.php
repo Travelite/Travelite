@@ -32,6 +32,8 @@ if ($postID) {
     $authorName = $author['username'];
 }
 
+$userImg = $post['imageURL'] ? $post['imageURL'] : NULL;
+
 /// Comments
 $comments = $postID ? getCommentsForPostID($postID) : array();
 $commentsCount = count($comments) ? count($comments) : 0;
@@ -70,6 +72,10 @@ $commentsCount = count($comments) ? count($comments) : 0;
                 <header>
                     <?php echo '<h2 class="entry-title"><a href="#" rel="bookmark">' .$title. '</a></h2>'; ?>
                 </header>
+                    <?php
+                        echo "<br>";
+                        echo "<img align='center' class='uploaded_image' height='500' width='700' src='". $userImg ."' alt='Uploaded Image'>";
+                    ?>
                 
                 <footer class="post-info">
                     <abbr class="published"><?php echo "<small>$date</small>"; ?></abbr>
@@ -98,7 +104,9 @@ $commentsCount = count($comments) ? count($comments) : 0;
                         $username = $user['username'];
                         $body = $comment['comment'];
                         $commentID = $comment['comment_id'];
-                        $deleteURL = $isAdmin ? '<div><a href="javascript:confirmCommentDelete(\'?id=' .$postID. '&deleteComment=' .$commentID. '\')">Delete comment</a></div>' : NULL;
+                        $reportURL = $isLoggedIn ? '<a href="report.php?commentID='.$commentID.'&postID='.$postID.'" target="_blank">Report comment</a>' : NULL;
+                        $deleteURL = $isAdmin ? ' - <a href="javascript:confirmCommentDelete(\'?id=' .$postID. '&deleteComment=' .$commentID. '\')">Delete comment</a>' : NULL;
+                        $urlsDiv = '<div>' . $reportURL . $deleteURL . '</div>';
                         echo '
                         <li>
                             <article id="' .$commentID. '" class="hentry">
@@ -107,7 +115,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
                                     <address class="vcard author">by <a class="url fn" href="' .$userURL. '">' .$username. '</a></address>
                                 </footer>
                                 <div class="entry-content"><p>' .$body. '</p></div>
-                                '.$deleteURL.'
+                                '.$urlsDiv.'
                             </article>
                         </li>'; 
                     }

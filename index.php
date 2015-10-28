@@ -27,29 +27,31 @@ $posts = getAllPosts();
 
 <body id="index" class="home">
 	
-	<?php echo $htmlNavigation; ?>
-
-        <?php    
-            if(!$post) {
-                echo'
-                    <section id="content" class="body">
-                    <article class="hentry">
-                        <header> 
-                        <h2 class="entry-title">No Posts Found!</a></h2>
-                        </header>
-                    </article>
-                    </section>
-                    ';
-            } else {
+	<?php echo $htmlNavigation;
+    
+        if (!$posts) {
+            echo'
+                <section id="content" class="body">
+                <article class="hentry">
+                    <header> 
+                    <h2 class="entry-title">No Posts Found!</a></h2>
+                    </header>
+                </article>
+                </section>
+                ';
+        } else {
+            
+            // Loop through posts
             foreach ($posts as $post) {
                 $timestamp = wordedTimestamp($post['timestamp'], true);
                 $postURL = "post.php?id=" . $post['post_id'];
                 $postBody = $post['body'];
+                $userImg = strlen($post['imageURL']) ? '<img class="uploaded_image" height="250" width="350" src="' .$post['imageURL']. '" alt="Uploaded Image">' : NULL;
                 if (strlen($postBody) > 256) {
                     $postBody = substr($postBody, 0, 256);
                     $postBody .= '... <a href="' .$postURL. '">Read more</a>';
                 }
-                
+
                 $user = getUserForID($post['user_id']);
                 $userURL = "user.php?id=" . $user['user_id'];
                 $authorName = $user['username'];
@@ -62,12 +64,13 @@ $posts = getAllPosts();
                         <footer class="post-info">
                             <abbr class="published">' .$timestamp. '</abbr>
                             <address class="vcard author">by <a class="url fn" href="' .$userURL. '">' .$authorName. '</a></address>
-                        </footer>
-                        <div class="entry-content"><p>' .$postBody. '</p></div>
+                        </footer>'.$userImg.
+                        '<div class="entry-content"><p>' .$postBody. '</p></div>
                     </article>
                 </section>
                 ';
-            }}
-        ?>  
+            }
+        }
+    ?>  
 </body>
 </html>

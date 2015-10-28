@@ -6,39 +6,53 @@ if (!$isLoggedIn) {
 }
 
 $submitted = isset($_POST['submit']) ? true : false;
-$report = isset($_GET['report']) ? $_GET['report'] : false;
-$reason = isset($_GET['reason']) ? $_GET['reason'] : NULL;
+$reason = isset($_POST['reportReason']) ? $_POST['reportReason'] : false;
 
-$userID = isset($_GET['id']) ? $_GET['id'] : 0;
-$commentID = isset($_GET['id']) ? $_GET['id'] : 0;
-$postID = isset($_GET['id']) ? $_GET['id'] : 0;
+$userID = isset($_GET['userID']) ? $_GET['userID'] : 0;
+$commentID = isset($_GET['commentID']) ? $_GET['commentID'] : 0;
+$postID = isset($_GET['postID']) ? $_GET['postID'] : 0;
 
 $responseMsg = NULL;
 $reportingMsg = "<p>Cannot report user/comment at this moment.</p>";
+$reporting = NULL;
 
-if ($report) {
-    if ($commentID && $postID) {
-        // Reporting comment
-        $user = getUserForID($id);
-        $url = 'post.php?id=' .$postID. '#' .$commentID;
-        $reportingMsg = '<p>Reporting comment <a href="'.$url.'">'.$commentID.'</a></p>';
+if ($commentID && $postID) {
+    // Reporting comment
+    $reporting = "comment";
+    $user = getUserForID($id);
+    $url = 'post.php?id=' .$postID. '#' .$commentID;
+    $reportingMsg = '<p>Reporting comment <a href="'.$url.'">'.$commentID.'</a></p>';
 
-    } else if ($userID && !$commentID) {
-        // Reporting user
-        $user = getUserForID($id);
-        $url = 'user.php?id=' .$id;
-        $reportingMsg = '<p>Reporting user <a href="'.$url.'">'.$user['username'].'</a></p>';
-    }
-} else {
-    #header("Location:index.php");
-    #exit;
+} else if ($userID && !$commentID) {
+    // Reporting user
+    $reporting = "user";
+    $user = getUserForID($id);
+    $url = 'user.php?id=' .$id;
+    $reportingMsg = '<p>Reporting user <a href="'.$url.'">'.$user['username'].'</a></p>';
 }
 
 if ($submitted) {
-    if ($report === "user") {
-        
-    } else if ($report === "comment") {
-        
+    if ($reason) {
+        if ($reporting === "user") {
+            // Insert user report to db
+            $reported = reportUser($userID, $myUserID, $reason);
+            if ($reported['success']) {
+                header("Location:user.php?id=$userID");
+            } else {
+                $responseMsg = $reported['response'] . "<br><br>";
+            }
+
+        } else if ($reporting === "comment") {
+            // Insert comment report to db
+            $reported = reportComment($commentID, $postID, $myUserID, $reason);
+            if ($reported['success']) {
+                header("Location:post.php?id=$postID#$commentID");
+            } else {
+                $responseMsg = $reported['response'] . "<br><br>";
+            }
+        }
+    } else {
+        $responseMsg = "Please give a reason for your report.<br><br>";
     }
 }
 

@@ -5,39 +5,29 @@ if (!$isLoggedIn) {
     exit;
 }
 
-if (isset($_POST["submit"])) {
-    $submittedDetails = $_POST;
-    unset($submittedDetails['submit']);
-    $image = $_FILES['image_upload'];
-    
+$uploadedImg = isset($_FILES['post_image']) ? true : false;
+$imageURL = "";
+
+if ($uploadedImg) {
+    $image = $_FILES['post_image'];    
     $imageTempDir = $image['tmp_name'];
     $imageName = $image['name'];
     $imagesDir = "user_pictures/";
     $imagePath = $imagesDir . $imageName;
-    echo $imageName . "<br/>";
     
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
-    $submittedDetails['imageURL'] = ""; // set default profileImage path to ""
     if ($uploaded) {
-        // if it works, insert new image path
-        $submittedDetails['imageURL'] = $imagePath; // update image path
-    } else {
-        // file move failed
-        echo "upload failed";
-        // leave image path as ""
+        $imageURL = $imagePath;
     }
-    
-    $updated = updateUserForID($_SESSION['user_id'], $submittedDetails); 
-    if ($updated) echo "successful";
 }
 
 $submitted = isset($_POST['submit']) ? true : false;
-$postTitle = isset($_POST['postTitle']) ? $_POST['postTitle'] : NULL;
-$postBody = isset($_POST['postBody']) ? $_POST['postBody'] : NULL;
+$postTitle = isset($_POST['title']) ? $_POST['title'] : NULL;
+$postBody = isset($_POST['body']) ? $_POST['body'] : NULL;
 $responseMsg = NULL;
 
 if ($submitted) {
-    $inserted = insertNewPost($myUserID, $postTitle, $postBody);
+    $inserted = insertNewPost($myUserID, $postTitle, $postBody, $imageURL);
     if ($inserted['success']) {
         header("Location:index.php");
     } else {
@@ -68,14 +58,14 @@ if ($submitted) {
         <section id="content" class="body">
             <div id="respond">
                 <?php echo $responseMsg; ?>
-                <form method="post">
+                <form method="post" enctype='multipart/form-data'>
                     <label for="postTitle" class="required">Post Title</label>
-                    <input type="text" name="postTitle" id="postTitle" value="<?php echo $postTitle; ?>" tabindex="1" required="required">
+                    <input type="text" name="title" id="postTitle" value="<?php echo $postTitle; ?>" tabindex="1" required="required">
                     
                     <label for="postBody" class="required">Post Body</label>
-                    <textarea name="postBody" id="postBody" rows="20" tabindex="2" required="required"><?php echo $postBody; ?></textarea>
+                    <textarea name="body" id="postBody" rows="20" tabindex="2" required="required"><?php echo $postBody; ?></textarea>
                     
-                    <input type="file" name="image_upload">
+                    <input type="file" name="post_image">
                     <input name="submit" type="submit" value="Post">
                 </form>
             </div>

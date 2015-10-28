@@ -14,7 +14,6 @@ if (isset($_POST["submit"])) {
     $imageName = $image['name'];
     $imagesDir = "pictures/";
     $imagePath = $imagesDir . $imageName;
-    echo $imageName . "<br/>";
     
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
     $submittedDetails['profileImage'] = "pictures/default.png"; // set default profileImage path to pictures/default.png
@@ -31,7 +30,6 @@ if (isset($_POST["submit"])) {
     if ($updated) echo "successful";
 }
 $user = getUserForID($_SESSION['user_id']);
-echoVar($user);
 
 $profilePic = $user['profileImage'] ? $user['profileImage'] : "pictures/default.png";
 $fullName = $user['fullName'] ? $user['fullName'] : "No name";

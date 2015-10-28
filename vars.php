@@ -1,10 +1,15 @@
 <?php
-
 session_start();
+
+# Set timzeone
+date_default_timezone_set("Africa/Johannesburg");
+
+# Session variables
 $myUserID = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 $isAdmin = isset($_SESSION['admin']) ? $_SESSION['admin'] : 0;
 $isLoggedIn = $myUserID ? true : false;
 
+# HTML Variables
 $htmlNavigation = NULL;
 if ($isLoggedIn) {
     $htmlNavigation = '

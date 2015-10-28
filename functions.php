@@ -1,9 +1,9 @@
 <?php
-
 require_once("vars.php");
 
-# Set timzeone
-date_default_timezone_set("Africa/Johannesburg");
+
+
+/// D A T A B A S E ///
 
 # Return the database connection
 function dbConnection() {
@@ -21,6 +21,8 @@ function dbResultFromQuery($query) {
     mysqli_close($connection);
     return $result;
 }
+
+
 
 /// U S E R S ///
 
@@ -55,7 +57,7 @@ function registerUser($fullName, $username, $password, $email) {
         }
     }
     
-    $result = dbResultFromQuery("INSERT INTO users (fullName, username, password, emailAddress) VALUES ('$fullName',' $username','$password','$email');");
+    $result = dbResultFromQuery("INSERT INTO users (fullName, username, password, emailAddress) VALUES ('$fullName', '$username', '$password', '$email');");
     if ($result) {
         return returnResponse(1, "Registration successful.", $result);
     } else {
@@ -102,6 +104,8 @@ function updateUserForID($userID, $userDetails) {
     $result = dbResultFromQuery("UPDATE users SET user_id='$userID'$updateString WHERE user_id='$userID';");
 }
 
+
+
 /// P O S T S ///
 
 function getAllPosts() {
@@ -122,18 +126,20 @@ function getPostForID($postID) {
     return $post;
 }
 
-function insertNewPost($userID, $postTitle, $postBody) {
+function insertNewPost($userID, $postTitle, $postBody, $imageURL=NULL) {
     if (empty($userID) || empty($postTitle) || empty($postBody)) {
         return returnResponse(0, "Failed to create new post, please complete all fields.", $result);
     }
     
-    $result = dbResultFromQuery("INSERT INTO posts (user_id, title, body) VALUES ('$userID',' $postTitle', '$postBody');");
+    $result = dbResultFromQuery("INSERT INTO posts (user_id, title, body, imageURL) VALUES ('$userID', '$postTitle', '$postBody', '$imageURL');");
     if ($result) {
         return returnResponse(1, "New post created successful.", $result);
     } else {
         return returnResponse(0, "Failed to create new post, please try again.", $result);
     }
 }
+
+
 
 /// C O M M E N T S ///
 
@@ -146,12 +152,64 @@ function getCommentsForPostID($postID) {
     return $comments;
 }
 
+function getCommentForID($commentID) {
+    $comment = [];
+    $result = dbResultFromQuery("SELECT * FROM comments WHERE comment_id='$commentID' LIMIT 1;");
+    if ($result->num_rows > 0) {
+        $comment = mysqli_fetch_assoc($result);
+    }
+    return $comment;
+}
+
 function insertNewComment($postID, $userID, $comment) {
     if (empty($postID) || empty($userID) || empty($comment)) return 0;
 
-    $result = dbResultFromQuery("INSERT INTO comments (post_id, user_id, comment) VALUES ('$postID',' $userID', '$comment');");
+    $result = dbResultFromQuery("INSERT INTO comments (post_id, user_id, comment) VALUES ('$postID', '$userID', '$comment');");
     return $result;
 }
+
+
+
+/// R E P O R T S ///
+
+function reportUser($userID, $reporterID, $reason) {
+    $user = getUserForID($userID);
+    if (!$user) return returnResponse(0, "Failed to report, user not found.", $result);
+    $username = $user['username'];
+    $fullName = $user['fullName'];
+    $emailAdd = $user['emailAddress'];
+        
+    $result = dbResultFromQuery("INSERT INTO reported_users (user_id, username, fullName, emailAddress, reporter_id, reportReason) VALUES ('$userID', '$username', '$fullName', '$emailAdd', '$reporterID', '$reason');");
+    if ($result) {
+        return returnResponse(1, "User reported, thank you for keeping the community clean.");
+    } else {
+        return returnResponse(0, "Failed to report, please try again.");
+    }
+}
+
+function updateReportedUser() {
+    
+}
+
+function reportComment($commentID, $postID, $reporterID, $reason) {
+    $comment = getCommentForID($commentID);
+    if (!$comment) return returnResponse(0, "Failed to report, comment not found.", $result);
+    $userID = $comment['user_id'];
+    $reportedComment = $comment['comment'];
+    
+    $result = dbResultFromQuery("INSERT INTO reported_comments (comment_id, post_id, user_id, comment, reporter_id, reportReason) VALUES ('$commentID', '$postID', '$userID', '$reportedComment', '$reporterID', '$reason');");
+    if ($result) {
+        return returnResponse(1, "Comment reported, thank you for keeping the community clean.");
+    } else {
+        return returnResponse(0, "Failed to report, please try again.");
+    }
+}
+
+function updateReportedComment() {
+    
+}
+
+
 
 /// L O C A T I O N S ///
 
@@ -170,6 +228,8 @@ function getAllLocations() {
     }
     return $locations;
 }
+
+
 
 /// H E L P E R S ///
 

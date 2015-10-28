@@ -496,6 +496,12 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
     height: 100px;
 }
 
+.profilePic_user {
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+}
+
 #map_container{ 
   width: 1067px;
   height: 100%;

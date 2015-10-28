@@ -15,7 +15,7 @@ $responseMsg = NULL;
 if ($submitted) {
     $registered = registerUser($fullName, $username, $password, $email);
     if ($registered['success']) {
-        header("Location:index.php");
+        header("Location:login.php");
     } else {
         $responseMsg = $registered['response'] . "<br><br>";
     }
