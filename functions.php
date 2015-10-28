@@ -59,9 +59,9 @@ function registerUser($fullName, $username, $password, $email) {
     
     $result = dbResultFromQuery("INSERT INTO users (fullName, username, password, emailAddress) VALUES ('$fullName', '$username', '$password', '$email');");
     if ($result) {
-        return returnResponse(1, "Registration successful.", $result);
+        return returnResponse(1, "Registration successful.");
     } else {
-        return returnResponse(0, "Registration failed, please try again.", $result);
+        return returnResponse(0, "Registration failed, please try again.");
     }
 }
 
@@ -69,7 +69,7 @@ function loginUser($username, $password) {
     // Check if username or email address exist
     $result = dbResultFromQuery("SELECT * FROM users WHERE emailAddress='$username' OR username='$username' LIMIT 1;");
     if ($result->num_rows === 0) {
-        return returnResponse(0, "Login failed, no such user.", $result);
+        return returnResponse(0, "Login failed, no such user.");
     }
     
     $user = mysqli_fetch_assoc($result);
@@ -80,14 +80,18 @@ function loginUser($username, $password) {
     // Compare the given password with database password
     $passwordMatch = password_verify($password, $hashedPassword);   
     if (!$passwordMatch) {
-        return returnResponse(0, "Login failed, incorrect password.", $result);
+        return returnResponse(0, "Login failed, incorrect password.");
     }
     
-    // Assign values to the session array
-    $_SESSION['user_id'] = $user['user_id'];
-    $_SESSION['admin'] = $user['admin'];
-    
-    return returnResponse(1, "Login successful.", $user);
+    if ($user['banned']) {
+        $_SESSION['banned'] = $user['banned'];
+        return returnResponse(0, "Login failed, you have been banned. Please contact the administrator.");
+    } else {
+        // Assign values to the session array
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['admin'] = $user['admin'];
+        return returnResponse(1, "Login successful.", $user);
+    }
 }
 
 function getUserForID($userID) {
@@ -102,6 +106,26 @@ function updateUserForID($userID, $userDetails) {
         $updateString .= ", $key='$value'";
     }
     $result = dbResultFromQuery("UPDATE users SET user_id='$userID'$updateString WHERE user_id='$userID';");
+}
+
+function banUser($userID) {
+    $result = dbResultFromQuery("UPDATE users SET banned=1 WHERE user_id='$userID';");
+    if ($result) {
+        echo "User has been banned! Redirecting in 5 seconds...";
+        header("Refresh:5; URL=user.php?id=$userID");
+    } else {
+        echo "Banning user failed, please try again.";
+    }
+}
+
+function unbanUser($userID) {
+    $result = dbResultFromQuery("UPDATE users SET banned=0 WHERE user_id='$userID';");
+    if ($result) {
+        echo "User has been unbanned! Redirecting in 5 seconds...";
+        header("Refresh:5; URL=user.php?id=$userID");
+    } else {
+        echo "Unbanning user failed, please try again.";
+    }
 }
 
 
@@ -126,12 +150,12 @@ function getPostForID($postID) {
     return $post;
 }
 
-function insertNewPost($userID, $postTitle, $postBody, $imageURL=NULL) {
+function insertNewPost($userID, $postTitle, $postBody, $imageURL=NULL, $thumbPath=NULL) {
     if (empty($userID) || empty($postTitle) || empty($postBody)) {
         return returnResponse(0, "Failed to create new post, please complete all fields.", $result);
     }
     
-    $result = dbResultFromQuery("INSERT INTO posts (user_id, title, body, imageURL) VALUES ('$userID', '$postTitle', '$postBody', '$imageURL');");
+    $result = dbResultFromQuery("INSERT INTO posts (user_id, title, body, imageURL, thumbURL) VALUES ('$userID', '$postTitle', '$postBody', '$imageURL', '$thumbPath');");
     if ($result) {
         return returnResponse(1, "New post created successful.", $result);
     } else {
@@ -282,6 +306,60 @@ function echoVar($var) {
     echo '<pre>';
     print_r($var);
     echo '</pre>';
+}
+
+function squareImageAtPath($imgPath, $destPath, $imgSize) {
+    $source_img = NULL;
+    if (substr_count(strtolower($imgPath), ".jpg") or substr_count(strtolower($imgPath), ".jpeg")){
+        $source_img = @imagecreatefromjpeg($imgPath);
+    } else if(substr_count(strtolower($imgPath), ".gif")){
+        $source_img = @imagecreatefromgif($imgPath);
+    } else if(substr_count(strtolower($imgPath), ".png")){
+        $source_img = @imagecreatefrompng($imgPath);
+    } else {
+        return 0;
+    }
+
+    $orig_w = imagesx($source_img);
+    $orig_h = imagesy($source_img);
+
+    $w_ratio = ($imgSize / $orig_w);
+    $h_ratio = ($imgSize / $orig_h);
+
+    if ($orig_w > $imgSize ) {//landscape
+        $crop_w = round($orig_w * $h_ratio);
+        $crop_h = $imgSize;
+        $src_x = ceil( ( $orig_w - $orig_h ) / 2 );
+        $src_y = 0;
+    } elseif ($orig_w < $orig_h ) {//portrait
+        $crop_h = round($orig_h * $w_ratio);
+        $crop_w = $new_w;
+        $src_x = 0;
+        $src_y = ceil( ( $orig_h - $orig_w ) / 2 );
+    } else {//square
+        $crop_w = $imgSize;
+        $crop_h = $imgSize;
+        $src_x = 0;
+        $src_y = 0;	
+    }
+    $dest_img = imagecreatetruecolor($imgSize,$imgSize);
+    imagecopyresampled($dest_img, $source_img, 0 , 0 , $src_x, $src_y, $crop_w, $crop_h, $orig_w, $orig_h);
+	
+    $imgSaved = false;
+    if (substr_count(strtolower($imgPath), ".jpg") or substr_count(strtolower($imgPath), ".jpeg")){
+        $imgSaved = imagejpeg($dest_img, $destPath);
+    } else if(substr_count(strtolower($imgPath), ".gif")){
+        $imgSaved = imagegif($dest_img, $destPath);
+    } else if(substr_count(strtolower($imgPath), ".png")){
+        $imgSaved = imagepng($dest_img, $destPath, PNG_NO_FILTER);
+    } else {
+        return 0;
+    }
+    if ($imgSaved) {
+        imagedestroy($dest_img);
+        imagedestroy($source_img);
+    }
+    return $imgSaved;
 }
 
 ?>

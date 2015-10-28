@@ -46,7 +46,7 @@ $posts = getAllPosts();
                 $timestamp = wordedTimestamp($post['timestamp'], true);
                 $postURL = "post.php?id=" . $post['post_id'];
                 $postBody = $post['body'];
-                $userImg = strlen($post['imageURL']) ? '<img class="uploaded_image" height="250" width="350" src="' .$post['imageURL']. '" alt="Uploaded Image">' : NULL;
+                $userImg = strlen($post['thumbURL']) ? '<img class="uploaded_image" height="100" width="100" src="' .$post['thumbURL']. '" alt="Uploaded Image">' : NULL;
                 if (strlen($postBody) > 256) {
                     $postBody = substr($postBody, 0, 256);
                     $postBody .= '... <a href="' .$postURL. '">Read more</a>';

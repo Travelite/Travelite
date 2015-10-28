@@ -14,10 +14,12 @@ if ($uploadedImg) {
     $imageName = $image['name'];
     $imagesDir = "user_pictures/";
     $imagePath = $imagesDir . $imageName;
+    $thumbPath = $imagesDir . "thumbs/" . $imageName;
     
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
     if ($uploaded) {
         $imageURL = $imagePath;
+        squareImageAtPath($imagePath, $thumbPath, 100);
     }
 }
 
@@ -27,7 +29,7 @@ $postBody = isset($_POST['body']) ? $_POST['body'] : NULL;
 $responseMsg = NULL;
 
 if ($submitted) {
-    $inserted = insertNewPost($myUserID, $postTitle, $postBody, $imageURL);
+    $inserted = insertNewPost($myUserID, $postTitle, $postBody, $imageURL, $thumbPath);
     if ($inserted['success']) {
         header("Location:index.php");
     } else {

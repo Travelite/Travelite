@@ -74,7 +74,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
                 </header>
                     <?php
                         echo "<br>";
-                        echo "<img align='center' class='uploaded_image' height='500' width='700' src='". $userImg ."' alt='Uploaded Image'>";
+                        echo "<img align='center' class='uploaded_image' width='700' src='". $userImg ."' alt='Uploaded Image'>";
                     ?>
                 
                 <footer class="post-info">
