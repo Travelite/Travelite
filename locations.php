@@ -1,7 +1,10 @@
 <?php
-include_once 'functions.php';
-
-    $locations = getAllLocations();
+require_once("functions.php");
+if (!$isLoggedIn) {
+    header("Location:index.php");
+    exit;
+}
+$locations = getAllLocations();
 
 ?>
 <!DOCTYPE html>
@@ -18,17 +21,7 @@ include_once 'functions.php';
     </head>
     <body id="index" class="home">
         
-        <header id="banner" class="body">
-            <nav><ul>
-                <li><a href="#">home</a></li>
-                <li><a href="#">posts</a></li>
-                <li><a href="#">blog</a></li>
-                <li><a href="#">contact</a></li>
-                <li><a href="#"> <i class="fa fa-cog"></i></a></li>
-            </ul></nav>
-        </header>
-        
-        
+        <?php echo $htmlNavigation; ?>
         
         <div id="map_container">
           <div id="map_canvas"></div>

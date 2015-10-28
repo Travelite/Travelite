@@ -1,6 +1,9 @@
-<?php 
-include_once 'functions.php';
-session_start();
+<?php
+require_once("functions.php");
+if (!$isLoggedIn) {
+    header("Location:login.php");
+    exit;
+}
 
 if (isset($_POST["submit"])) {
     $submittedDetails = $_POST;
@@ -11,32 +14,32 @@ if (isset($_POST["submit"])) {
     $imageName = $image['name'];
     $imagesDir = "pictures/";
     $imagePath = $imagesDir . $imageName;
-    echo $image . "<br/>";
+    echo $imageName . "<br/>";
     
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
-
     $submittedDetails['profileImage'] = "pictures/default.png"; // set default profileImage path to pictures/default.png
     if ($uploaded) {
         // if it works, insert new image path
         $submittedDetails['profileImage'] = $imagePath; // update image path
     } else {
         // file move failed
+        echo "upload failed";
         // leave image path as pictures/default.png
     }
     
     $updated = updateUserForID($_SESSION['user_id'], $submittedDetails); 
     if ($updated) echo "successful";
 }
-
 $user = getUserForID($_SESSION['user_id']);
+echoVar($user);
+
 $profilePic = $user['profileImage'] ? $user['profileImage'] : "pictures/default.png";
 $fullName = $user['fullName'] ? $user['fullName'] : "No name";
- 
 ?>
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Edit Account</title>
+        <title>Account Settings</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="css/main.css" type="text/css" />
 
@@ -51,15 +54,8 @@ $fullName = $user['fullName'] ? $user['fullName'] : "No name";
     </head>
     </head>
     <body>
-         <header id="banner" class="body">
-            <nav><ul>
-                <li><a href="#">home</a></li>
-                <li><a href="#">posts</a></li>
-                <li><a href="#">blog</a></li>
-                <li><a href="#">contact</a></li>
-                <li><a href="#"> <i class="fa fa-cog"></i></a></li>
-            </ul></nav>
-        </header>
+         <?php echo $htmlNavigation; ?>
+        
          <section id="logins" class="body">
             <div id="login" align="center">
                 <div id="backing" align="center">
@@ -79,6 +75,6 @@ $fullName = $user['fullName'] ? $user['fullName'] : "No name";
                     </form>
                 </div>
             </div>
-        </section>        
+        </section> 
     </body>
 </html>

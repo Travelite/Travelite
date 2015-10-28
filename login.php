@@ -1,14 +1,24 @@
 <?php
-include_once 'functions.php';
-session_start();
-
-$loggedIn = 1;
-if (isset($_POST['login'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $loggedIn = loginUser($username, $password);
-    if ($loggedIn) header("Location:index.php");
+require_once("functions.php");
+if ($isLoggedIn) {
+    header("Location:index.php");
+    exit;
 }
+
+$submitted = isset($_POST['login']) ? true : false;
+$username = $submitted ? $_POST['username'] : NULL;
+$password = $submitted ? $_POST['password'] : NULL;
+$responseMsg = NULL;
+
+if ($submitted) {
+    $loggedIn = loginUser($username, $password);
+    if ($loggedIn['success']) {
+        header("Location:index.php");
+    } else {
+        $responseMsg = $loggedIn['response'] . "<br><br>";
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
@@ -28,15 +38,7 @@ if (isset($_POST['login'])) {
     </head>
     <body id="index" class="home">
         
-        <header id="banner" class="body">
-            <nav><ul>
-                <li><a href="#">home</a></li>
-                <li><a href="#">posts</a></li>
-                <li><a href="#">blog</a></li>
-                <li><a href="#">contact</a></li>
-                <li><a href="#"> <i class="fa fa-cog"></i></a></li>
-            </ul></nav>
-        </header>
+        <?php echo $htmlNavigation; ?>
         
         <section id="logins" class="body">
             <div id="login" align="center">
@@ -45,9 +47,9 @@ if (isset($_POST['login'])) {
                         <h2>LOGIN</h2>
                     </header>
                     <h3 style="color:#F9FAEE;">Sign into your account</h3>
-                    <?php if (!$loggedIn) echo "<p>Wrong login details, please try again.</p>"; ?>
+                    <?php echo $responseMsg; ?>
                     <form method="post" id="loginform">
-                        <input style="font-size:12px;" type="text" name="username" placeholder="Email Address" tabindex="2" required="required">
+                        <input style="font-size:12px;" type="text" name="username" value="<?php echo $username; ?>" placeholder="Username or Email Address" tabindex="2" required="required">
                         <input style="font-size:12px;" type="password" name="password" placeholder="Password" tabindex="3" required="required">
                         <input name="login" type="submit" value="Log In" style="margin-left:50px; float:left;">
                     </form>
@@ -57,10 +59,6 @@ if (isset($_POST['login'])) {
                 </div>
             </div>
         </section>
-        
-        <footer id="contentinfo" class="body">
-            <p><?php echo $footerMessage; ?></p>
-        </footer>
     
     </body>
 </html>

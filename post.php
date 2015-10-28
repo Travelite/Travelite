@@ -1,16 +1,14 @@
 <?php
-include_once 'functions.php';
-session_start();
+require_once("functions.php");
 
-$myUserID = $_SESSION['user_id'] ? $_SESSION['user_id'] : 0;
-$isAdmin = $_SESSION['admin'] ? $_SESSION['admin'] : 0;
-$didComment = $_POST['submit'] ? true : false;
-$postID = $_GET['id'] ? $_GET['id'] : 0;
+$postID = isset($_GET['id']) ? $_GET['id'] : 0;
+$didComment = isset($_POST['submit']) ? true : false;
+$comment = isset($_POST['comment']) ? $_POST['comment'] : NULL;
 
 /// Insert new comment
 if ($didComment && $postID) {
     if ($myUserID) {
-        $commented = newCommentForPostID($_GET['id'], $_SESSION['user_id'], $_POST['comment']);
+        $commented = insertNewComment($postID, $myUserID, $comment);
     } else {
         // Not logged in
     }
@@ -42,7 +40,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
 <!DOCTYPE html>
 <html lang="en-US">
     <head>
-        <title>Smashing HTML5!</title>
+        <title>Posts</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="css/main.css" type="text/css" />
 
@@ -65,15 +63,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
     </head>
     <body id="index" class="home">
         
-        <header id="banner" class="body">
-            <nav><ul>
-                <li><a href="#">home</a></li>
-                <li><a href="#">posts</a></li>
-                <li><a href="#">blog</a></li>
-                <li><a href="#">contact</a></li>
-            </ul></nav>
-        </header>
-        
+        <?php echo $htmlNavigation; ?>
         
         <section id="content" class="body">
             <article class="hentry">
@@ -108,6 +98,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
                         $username = $user['username'];
                         $body = $comment['comment'];
                         $commentID = $comment['comment_id'];
+                        $deleteURL = $isAdmin ? '<div><a href="javascript:confirmCommentDelete(\'?id=' .$postID. '&deleteComment=' .$commentID. '\')">Delete comment</a></div>' : NULL;
                         echo '
                         <li>
                             <article id="' .$commentID. '" class="hentry">
@@ -116,29 +107,35 @@ $commentsCount = count($comments) ? count($comments) : 0;
                                     <address class="vcard author">by <a class="url fn" href="' .$userURL. '">' .$username. '</a></address>
                                 </footer>
                                 <div class="entry-content"><p>' .$body. '</p></div>
-                                <div><a href="javascript:confirmCommentDelete(\'?id=' .$postID. '&deleteComment=' .$commentID. '\')">Delete comment</a></div>
+                                '.$deleteURL.'
                             </article>
                         </li>'; 
                     }
                 ?>
             </ol>
+            <i class="fa fa-chevron-up"></i><br /><i class="fa fa-chevron-down"></i>
             <div id="respond">
                 <h3>Leave a Comment</h3>
-                <form method="post" id="commentform">
-                    <label for="comment_author" class="required">Your name</label>
-                    <input type="text" name="fullName" id="comment_author" value="" tabindex="1" required="required">
-                    <label for="email" class="required">Your email address</label>
-                    <input type="email" name="emailAddress" id="email" value="" tabindex="2" required="required">
-                    <label for="comment" class="required">Your message</label>
-                    <textarea name="comment" id="comment" rows="10" tabindex="3" required="required"></textarea>
-                    <input name="submit" type="submit" value="Comment">
-                </form>
+                <?php
+                if ($isLoggedIn) {
+                    echo '<form method="post" id="commentform">
+                        <label for="comment" class="required">Your message</label>
+                        <textarea name="comment" id="comment" rows="10" tabindex="3" required="required"></textarea>
+                        <input name="submit" type="submit" value="Comment">
+                    </form>';
+                } else {
+                    echo "<p><b>* Please login to comment.</b></p>";
+                    echo '<form method="post" id="commentform">
+                        <label for="comment" class="required">Your message</label>
+                        <textarea name="comment" id="comment" rows="10" tabindex="3" required="required" disabled></textarea>
+                        <input name="submit" type="submit" value="Comment" disabled>
+                    </form>';
+                }
+                ?>
             </div>
         </section>
         
-        <footer id="contentinfo" class="body">
-            <p><?php echo $footerMessage; ?></p>
-        </footer>
+
     
     </body>
 </html>
