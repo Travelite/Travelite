@@ -22,7 +22,7 @@ $isBanned = $user['banned'];
 $url = NULL;
 if ($isLoggedIn) {
     if ($isMyProfile) {
-        $url = '<p><a href="editProfile.php">Edit My Profile</a></p>';
+        $url = '<p><a href="editUser.php">Edit My Profile</a></p>';
     } else {
         $url = NULL;
         if ($userID) {

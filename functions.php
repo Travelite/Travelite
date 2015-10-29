@@ -33,9 +33,15 @@ function registerUser($fullName, $username, $password, $email) {
         return returnResponse(0, "Registration failed, please complete all required fields.");
     }
     
-    // Check if password is at least 6 characters long
+    // Check if password is bit more complex
     if (strlen($password) < 6) {
         return returnResponse(0, "Registration failed, minimum password length is 6 characters.");
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        return returnResponse(0, "Registration failed, password should at least contain 1 upper case.");
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        return returnResponse(0, "Registration failed, password should at least contain 1 digit.");
     }
     
     // Encrypt
@@ -161,6 +167,56 @@ function insertNewPost($userID, $postTitle, $postBody, $imageURL=NULL, $thumbPat
     } else {
         return returnResponse(0, "Failed to create new post, please try again.", $result);
     }
+}
+
+function votePost($commentID, $commenterID, $voterID, $vote) {
+    $post = dbResultFromQuery("SELECT comment_id, commenter_id, voter_id, vote FROM votes WHERE (comment_id='$commentID' AND voter_id='$voterID') LIMIT 1;");
+    $voted = false;
+    $voting = 1;
+    if ($post->num_rows > 0) {
+        // update
+        $post = mysqli_fetch_assoc($post);
+        if ($post['vote'] === 0) {
+            $voted = dbResultFromQuery("UPDATE votes SET vote=1 WHERE comment_id='$commentID');");
+        } else {
+            $voted = dbResultFromQuery("UPDATE votes SET vote=0 WHERE comment_id='$commentID');");
+            $voting = 0;
+        }
+    } else {
+        // insert
+        $voted = dbResultFromQuery("INSERT INTO votes (comment_id, commenter_id, voter_id, vote) VALUES ('$commentID', '$commenterID', '$voterID', '$vote');");
+        $voting = $vote;
+    }
+    
+    if (!$voted) return 0;
+    
+    $commenter = dbResultFromQuery("SELECT reputation FROM users WHERE user_id='$commenterID');");
+    if ($post->num_rows > 0) {
+        $reputation = intval($commenter['reputation']);
+        if ($voting) {
+            $reputation = $reputation + 10;
+        } else {
+            $reputation = $reputation - 10;
+        }
+        $voted = dbResultFromQuery("UPDATE users SET reputation=$reputation WHERE user_id='$commenterID');");
+    } else {
+        return 0;
+    }
+    
+    return $voted;
+}
+
+function countVotesForCommentID($commentID) {
+    $votes = dbResultFromQuery("SELECT vote FROM votes WHERE comment_id=$commentID;");
+    $totalVots = 0;
+    if ($votes->num_rows > 0) {
+        $votes = mysqli_fetch_all($votes, MYSQLI_ASSOC);
+        foreach ($votes as $vote) {
+            $voted = $vote['vote'];
+            $totalVots = $totalVots + $voted;
+        }
+    }
+    return $totalVots;
 }
 
 

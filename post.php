@@ -62,6 +62,31 @@ $commentsCount = count($comments) ? count($comments) : 0;
                 }       
             }
         </script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.0/jquery.min.js"></script>
+        <script type="text/javascript" >
+            $(function() {
+            $(".submit").click(
+                function() {
+                    var commentID = $("#commentID").val();
+                    var commenterID = $("#commenterID").val();
+                    var voterID = $("#voterID").val();
+                    var vote = $("#vote").val();
+                    
+                    var dataString = 'commentID='+ commentID + '&commenterID=' + commenterID + '&voterID=' + voterID + '&vote=' + vote;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "vote.php",
+                        data: dataString,
+                        success: function(){
+                            $('.success').fadeIn(200).show();
+                            $('.error').fadeOut(200).hide();
+                        }
+                    });
+                    return false;
+                });
+            });
+        </script>
     </head>
     <body id="index" class="home">
         
@@ -94,6 +119,8 @@ $commentsCount = count($comments) ? count($comments) : 0;
                 <h2><?php echo $commentsCount; ?> Comments</h2>
             </header>
             
+            
+            
             <ol id="posts-list" class="hfeed">
                 <?php
                     foreach ($comments as $comment) {
@@ -103,7 +130,20 @@ $commentsCount = count($comments) ? count($comments) : 0;
                         $userURL = "user.php?id=$userID";
                         $username = $user['username'];
                         $body = $comment['comment'];
+                        
                         $commentID = $comment['comment_id'];
+                        $commentVotes = countVotesForCommentID($commentID);
+                        $comVoterID = $isLoggedIn ? $myUserID : 0;
+                        
+                        $likeButton = '<form autocomplete="off" enctype="multipart/form-data" method="post" name="form">
+                            <input type="hidden" id="commentID" name="commentID" value="'.$commentID.'">
+                            <input type="hidden" id="commenterID" name="commenterID" value="'.$userID.'">
+                            <input type="hidden" id="voterID" name="voterID" value="'.$comVoterID.'">
+                            <input type="hidden" id="vote" name="vote" value="1">
+                            <input type="submit" if="submit" class="submit" value="Like">
+                        </form>';
+                        
+                        
                         $reportURL = $isLoggedIn ? '<a href="report.php?commentID='.$commentID.'&postID='.$postID.'" target="_blank">Report comment</a>' : NULL;
                         $deleteURL = $isAdmin ? ' - <a href="javascript:confirmCommentDelete(\'?id=' .$postID. '&deleteComment=' .$commentID. '\')">Delete comment</a>' : NULL;
                         $urlsDiv = '<div>' . $reportURL . $deleteURL . '</div>';
@@ -115,6 +155,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
                                     <address class="vcard author">by <a class="url fn" href="' .$userURL. '">' .$username. '</a></address>
                                 </footer>
                                 <div class="entry-content"><p>' .$body. '</p></div>
+                                <div>'.$commentVotes.' Likes '.$likeButton.'<div/>
                                 '.$urlsDiv.'
                             </article>
                         </li>'; 

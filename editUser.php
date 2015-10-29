@@ -71,6 +71,17 @@ $fullName = $user['fullName'] ? $user['fullName'] : "No name";
                         <input type="file" name="avatar">
                         <input type="submit" name="submit">
                     </form>
+                    <br>
+                    <form method="post" id="updateform">
+                        <p>Update Full Name: </p>
+                        <input type="text" name="newUsername" value="New Full Name">
+                        <p>Update Username: </p>
+                        <input type="text" name="newUsername" value="New Username">
+                        <p>Update Email Address: </p>
+                        <input type="text" name="newUsername" value="New Email Address">
+                        
+                        <input type="submit" name="updateUser" value="Update">                        
+                    </form>
                 </div>
             </div>
         </section> 
