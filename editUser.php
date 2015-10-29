@@ -9,24 +9,27 @@ $submitted = isset($_POST['updateUser']) ? true : false;
 $updatedImage = isset($_FILES['avatar']) ? true : false;
 unset($_POST['updateUser']);
 
-if ($updatedImage) {
-    $image = $_FILES['avatar'];    
-    $imageTempDir = $image['tmp_name'];
-    $imageName = $image['name'];
-    $imagesDir = "pictures/";
-    $imagePath = $imagesDir . $imageName;
-    
-    $uploaded = move_uploaded_file($imageTempDir, $imagePath);
-    if ($uploaded) {
-        $imageURL = $imagePath;
-        squareImageAtPath($imagePath, $imagePath, 200);
-    }
-}
-
 $errorMsg = NULL;
 if ($submitted) {
+    $submittingDetails = $_POST;
+    
+    if ($updatedImage) {
+        $image = $_FILES['avatar'];    
+        $imageTempDir = $image['tmp_name'];
+        $imageName = $image['name'];
+        $imagesDir = "pictures/";
+        $imagePath = $imagesDir . $imageName;
+
+        $uploaded = move_uploaded_file($imageTempDir, $imagePath);
+        if ($uploaded) {
+            $imageURL = $imagePath;
+            $submittingDetails['profileImage'] = $imageURL;
+            squareImageAtPath($imagePath, $imagePath, 200);
+        }
+    }
+    
     if (isValidEmail($_POST['emailAddress'])) {
-        updateUserForID($myUserID, $_POST);
+        updateUserForID($myUserID, $submittingDetails);
     } else {
         $errorMsg = "<b>* Invalid email address</b><br><br>";
     }
