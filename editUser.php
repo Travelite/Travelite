@@ -36,7 +36,10 @@ if ($submitted) {
 }
 
 $user = getUserForID($myUserID);
-$profilePic = $user['profileImage'] ? $user['profileImage'] : "pictures/default.png";
+
+$profilePicURL = $user['profileImage'] ? $user['profileImage'] : NULL;
+$profilePic = file_exists($profilePicURL) ? $postImgURL : "pictures/default.png";
+
 $fullName = $user['fullName'] ? $user['fullName'] : "No name set";
 $username = $user['username'] ? $user['username'] : "No username set";
 $emailAdd = $user['emailAddress'] ? $user['emailAddress'] : "No email address set";
