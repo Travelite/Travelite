@@ -252,6 +252,24 @@ function insertNewComment($postID, $userID, $comment) {
 
 /// R E P O R T S ///
 
+function getAllReportedUsers() {
+    $users = [];
+    $result = dbResultFromQuery("SELECT * FROM reported_users WHERE reviewed=0;");
+    if ($result->num_rows > 0) {
+        $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+    return $users;
+}
+
+function getReportedUserWithID($reportID) {
+    $report = [];
+    $result = dbResultFromQuery("SELECT * FROM reported_users WHERE report_id=$reportID LIMIT 1;");
+    if ($result->num_rows > 0) {
+        $report = mysqli_fetch_assoc($result);
+    }
+    return $report;
+}
+
 function reportUser($userID, $reporterID, $reason) {
     $user = getUserForID($userID);
     if (!$user) return returnResponse(0, "Failed to report, user not found.", $result);
@@ -267,8 +285,35 @@ function reportUser($userID, $reporterID, $reason) {
     }
 }
 
-function updateReportedUser() {
-    
+function updateReportedUser($reportID, $option) {
+    if ($option !== "ban" && $option !== "dismiss") return;
+    $result = dbResultFromQuery("UPDATE reported_users SET reviewed=1 WHERE report_id=$reportID;");
+
+    if ($option === "ban") {
+        $report = getReportedUserWithID($reportID);
+        $userID = $report['user_id'];
+        $banned = dbResultFromQuery("UPDATE users SET banned=1 WHERE user_id=$userID;");
+    }
+}
+
+
+
+function getAllReportedComments() {
+    $comments = [];
+    $result = dbResultFromQuery("SELECT * FROM reported_comments WHERE reviewed=0;");
+    if ($result->num_rows > 0) {
+        $comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+    return $comments;
+}
+
+function getReportedCommentWithID($reportID) {
+    $report = [];
+    $result = dbResultFromQuery("SELECT * FROM reported_comments WHERE report_id=$reportID LIMIT 1;");
+    if ($result->num_rows > 0) {
+        $report = mysqli_fetch_assoc($result);
+    }
+    return $report;
 }
 
 function reportComment($commentID, $postID, $reporterID, $reason) {
@@ -285,8 +330,15 @@ function reportComment($commentID, $postID, $reporterID, $reason) {
     }
 }
 
-function updateReportedComment() {
-    
+function updateReportedComment($reportID, $option) {
+    if ($option !== "delete" && $option !== "dismiss") return;
+    $result = dbResultFromQuery("UPDATE reported_comments SET reviewed=1 WHERE report_id=$reportID;");
+
+    if ($option === "delete") {
+        $report = getReportedCommentWithID($reportID);
+        $commentID = $report['comment_id'];
+        $deleted = dbResultFromQuery("DELETE FROM comments WHERE comment_id=$commentID;");
+    }
 }
 
 

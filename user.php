@@ -21,9 +21,7 @@ $isBanned = $user['banned'];
 
 $url = NULL;
 if ($isLoggedIn) {
-    if ($isMyProfile) {
-        $url = '<p><a href="editUser.php">Edit My Profile</a></p>';
-    } else {
+    if (!$isMyProfile) {
         $url = NULL;
         if ($userID) {
             $reportUrl = '<a href="report.php?userID='.$userID.'">Report User</a>';
@@ -41,10 +39,13 @@ if ($isLoggedIn) {
 }
 
 $profilePic = $user['profileImage'] ? $user['profileImage'] : "pictures/default.png";
+$profilePic = file_exists($profilePic) ? $profilePic : "pictures/default.png";
+
 $fullName = $user['fullName'] ? $user['fullName'] : "No name";
 $username = $user['username'] ? $user['username'] : "No username";
 $emailAddress = $user['emailAddress'] ? $user['emailAddress'] : "No email address";
 $date = $user['registerDate'] ? wordedTimestamp($user['registerDate'], false) : "Never registered";
+$banned = $user['banned'] ? "Banned" : "Good";
 
 ?>
 <!DOCTYPE html>
@@ -58,30 +59,28 @@ $date = $user['registerDate'] ? wordedTimestamp($user['registerDate'], false) : 
         
         <?php echo $htmlNavigation; ?>
         
-        <section id="content" class="body">
-            <div id="user" align="center">
-                <article class="hentry">
-                    <div class="entry-content">
-                        <?php 
-                        if ($error !== NULL) {
-                            echo $error;
-                        } else {
-                            echo "<img class='profilePic_user' src='". $profilePic ."' alt='Default Profile Pic'>";
-                            echo "<br>";
-                            echo 
-                                "<p> 
-                                Full Name: ".$fullName."<br>
-                                Username: ".$username."<br>
-                                Email Address: ".$emailAddress."<br>
-                                Registered Since: ".$date.                                
-                                "</p>";
-                            }
-                            
-                             echo $url;
-                                
-                        ?>
-                    </div>
-                </article>
+        <section id="logins" class="body">
+            <div id="login" align="center">
+                <div id="backing" align="center" style="width:400px;background-color:rgba(32,44,75,0.90);">
+                    <?php 
+                    echo "<header><h2>$username</h2></header>";
+                    
+                    if ($error !== NULL) {
+                        echo $error;
+                    } else {
+                        echo '<img class="profilePic_user" align="middle" style="margin-top:20px;" src="'. $profilePic .'" alt="Profile Pic"><br>';
+                        echo '<table border="0">
+                            <tr><td style="text-align:right; width:50%"><b>Full Name:</b></td><td>'.$fullName.'<br></td></tr>
+                            <tr><td style="text-align:right;"><b>Email Address:</b></td><td>'.$emailAddress.'<br></td></tr>
+                            <tr><td style="text-align:right;"><b>Registered Since:</b></td><td>'.$date.'</td></tr>
+                            <tr><td style="text-align:right;"><b>Standing:</b></td><td>'.$banned.'<br></td></tr>
+                            </table>';
+                        if ($isMyProfile) echo '<form action="editUser.php" method="post"><input type="submit" style="height:35px;" value="EDIT PROFILE"></form>';
+                        echo '</div>';
+                    }
+                    echo $url;
+                    ?>
+                </div>
             </div>
         </section>
         

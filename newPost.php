@@ -6,7 +6,8 @@ if (!$isLoggedIn) {
 }
 
 $uploadedImg = isset($_FILES['post_image']) ? true : false;
-$imageURL = "";
+$imageURL = NULL;
+$thumbURL = NULL;
 
 if ($uploadedImg) {
     $image = $_FILES['post_image'];    
@@ -19,6 +20,7 @@ if ($uploadedImg) {
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
     if ($uploaded) {
         $imageURL = $imagePath;
+        $thumbURL = $thumbPath;
         squareImageAtPath($imagePath, $thumbPath, 100);
     }
 }
@@ -29,7 +31,7 @@ $postBody = isset($_POST['body']) ? $_POST['body'] : NULL;
 $responseMsg = NULL;
 
 if ($submitted) {
-    $inserted = insertNewPost($myUserID, $postTitle, $postBody, $imageURL, $thumbPath);
+    $inserted = insertNewPost($myUserID, $postTitle, $postBody, $imageURL, $thumbURL);
     if ($inserted['success']) {
         header("Location:index.php");
     } else {
@@ -58,17 +60,17 @@ if ($submitted) {
         <?php echo $htmlNavigation; ?>
         
         <section id="content" class="body">
-            <div id="respond">
+            <div id="respond" style="width:90%; margin:30px auto 20px auto;">
                 <?php echo $responseMsg; ?>
-                <form method="post" enctype='multipart/form-data'>
+                <form method="post" enctype="multipart/form-data">
                     <label for="postTitle" class="required">Post Title</label>
-                    <input type="text" name="title" id="postTitle" value="<?php echo $postTitle; ?>" tabindex="1" required="required">
+                    <input type="text" name="title" style="height:35px;" id="postTitle" value="<?php echo $postTitle; ?>" tabindex="1" required="required">
                     
                     <label for="postBody" class="required">Post Body</label>
                     <textarea name="body" id="postBody" rows="20" tabindex="2" required="required"><?php echo $postBody; ?></textarea>
                     
-                    <input type="file" name="post_image">
-                    <input name="submit" type="submit" value="Post">
+                    Post an image: <input type="file" name="post_image"><br><br>
+                    <input name="submit" style="height:35px; float:middle;" type="submit" value="POST">
                 </form>
             </div>
         </section>

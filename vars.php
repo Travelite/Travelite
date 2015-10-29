@@ -11,6 +11,11 @@ $isLoggedIn = $myUserID ? true : false;
 $isBanned = isset($_SESSION['banned']) ? $_SESSION['banned'] : 0;
 
 # HTML Variables
+$htmlAdminPanel = NULL;
+if ($isAdmin) {
+    $htmlAdminPanel = '<li><a href="admin.php">Admin</a></li>';
+}
+
 $htmlNavigation = NULL;
 if ($isLoggedIn) {
     $htmlNavigation = '
@@ -18,8 +23,9 @@ if ($isLoggedIn) {
             <nav><ul>
                 <li><a href="index.php">Home</a></li>
                 <li><a href="newPost.php">New Post</a></li>
-                <li><a href="user.php">My Profile</a></li>
-                <li><a href="logout.php">Log Out</a></li>
+                <li><a href="user.php">My Profile</a></li>'
+                .$htmlAdminPanel.
+                '<li><a href="logout.php">Log Out</a></li>
             </ul></nav>
         </header>
         ';

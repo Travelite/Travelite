@@ -625,12 +625,10 @@ li:last-child .hentry,
 #loginform submit {
     display: inline-block;
 }
-.profilePic {
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-}
 .profilePic_user {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
     border-radius: 50%;
     width: 200px;
     height: 200px;

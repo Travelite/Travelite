@@ -7,7 +7,7 @@ if ($isLoggedIn) {
 
 $submitted = isset($_POST['registerUser']) ? true : false;
 $fullName = $submitted ? $_POST['fullName'] : NULL;
-$username = $submitted ? $_POST['username'] : NULL;
+$username = $submitted ? validatedInput($_POST['username']) : NULL;
 $password = $submitted ? $_POST['password'] : NULL;
 $email = $submitted ? $_POST['email'] : NULL;
 $responseMsg = NULL;

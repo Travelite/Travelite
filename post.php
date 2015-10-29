@@ -32,7 +32,8 @@ if ($postID) {
     $authorName = $author['username'];
 }
 
-$userImg = $post['imageURL'] ? $post['imageURL'] : NULL;
+$postImgURL = $post['imageURL'] ? $post['imageURL'] : NULL;
+$postImage = file_exists($postImgURL) ? '<p><img align="center" style="margin-bottom:40px;" class="uploaded_image" width="100%" src="' .$postImgURL. '" alt="Post Image"></p>' : NULL;
 
 /// Comments
 $comments = $postID ? getCommentsForPostID($postID) : array();
@@ -97,18 +98,16 @@ $commentsCount = count($comments) ? count($comments) : 0;
                 <header>
                     <?php echo '<h2 class="entry-title"><a href="#" rel="bookmark">' .$title. '</a></h2>'; ?>
                 </header>
-                    <?php
-                        echo "<br>";
-                        echo "<img align='center' class='uploaded_image' width='700' src='". $userImg ."' alt='Uploaded Image'>";
-                    ?>
                 
                 <footer class="post-info">
                     <abbr class="published"><?php echo "<small>$date</small>"; ?></abbr>
-                    <address class="vcard author"> by <?php echo'<a class="url fn" href="user?id=' .$authorID. '">' .$authorName. '</a>'; ?></address>
+                    <address class="vcard author"> by <?php echo'<a class="url fn" href="user.php?id=' .$authorID. '">' .$authorName. '</a>'; ?></address>
                 </footer>
                 
+                <?php echo $postImage; ?>
+                
                 <div class="entry-content">
-                    <?php echo '<p>' .$body. '<p>'; ?>
+                    <?php echo '<p>' .$body. '</p>'; ?>
                 </div>
             </article>
         </section>
@@ -119,8 +118,6 @@ $commentsCount = count($comments) ? count($comments) : 0;
                 <h2><?php echo $commentsCount; ?> Comments</h2>
             </header>
             
-            
-            
             <ol id="posts-list" class="hfeed">
                 <?php
                     foreach ($comments as $comment) {
@@ -130,19 +127,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
                         $userURL = "user.php?id=$userID";
                         $username = $user['username'];
                         $body = $comment['comment'];
-                        
                         $commentID = $comment['comment_id'];
-                        $commentVotes = countVotesForCommentID($commentID);
-                        $comVoterID = $isLoggedIn ? $myUserID : 0;
-                        
-                        $likeButton = '<form autocomplete="off" enctype="multipart/form-data" method="post" name="form">
-                            <input type="hidden" id="commentID" name="commentID" value="'.$commentID.'">
-                            <input type="hidden" id="commenterID" name="commenterID" value="'.$userID.'">
-                            <input type="hidden" id="voterID" name="voterID" value="'.$comVoterID.'">
-                            <input type="hidden" id="vote" name="vote" value="1">
-                            <input type="submit" if="submit" class="submit" value="Like">
-                        </form>';
-                        
                         
                         $reportURL = $isLoggedIn ? '<a href="report.php?commentID='.$commentID.'&postID='.$postID.'" target="_blank">Report comment</a>' : NULL;
                         $deleteURL = $isAdmin ? ' - <a href="javascript:confirmCommentDelete(\'?id=' .$postID. '&deleteComment=' .$commentID. '\')">Delete comment</a>' : NULL;
@@ -155,14 +140,13 @@ $commentsCount = count($comments) ? count($comments) : 0;
                                     <address class="vcard author">by <a class="url fn" href="' .$userURL. '">' .$username. '</a></address>
                                 </footer>
                                 <div class="entry-content"><p>' .$body. '</p></div>
-                                <div>'.$commentVotes.' Likes '.$likeButton.'<div/>
                                 '.$urlsDiv.'
                             </article>
                         </li>'; 
                     }
                 ?>
             </ol>
-            <i class="fa fa-chevron-up"></i><br /><i class="fa fa-chevron-down"></i>
+
             <div id="respond">
                 <h3>Leave a Comment</h3>
                 <?php

@@ -5,34 +5,39 @@ if (!$isLoggedIn) {
     exit;
 }
 
-if (isset($_POST["submit"])) {
-    $submittedDetails = $_POST;
-    unset($submittedDetails['submit']);
-    $image = $_FILES['avatar'];
-    
+$submitted = isset($_POST['updateUser']) ? true : false;
+$updatedImage = isset($_FILES['avatar']) ? true : false;
+unset($_POST['updateUser']);
+
+if ($updatedImage) {
+    $image = $_FILES['avatar'];    
     $imageTempDir = $image['tmp_name'];
     $imageName = $image['name'];
     $imagesDir = "pictures/";
     $imagePath = $imagesDir . $imageName;
     
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
-    $submittedDetails['profileImage'] = "pictures/default.png"; // set default profileImage path to pictures/default.png
     if ($uploaded) {
-        // if it works, insert new image path
-        $submittedDetails['profileImage'] = $imagePath; // update image path
-    } else {
-        // file move failed
-        echo "upload failed";
-        // leave image path as pictures/default.png
+        $imageURL = $imagePath;
+        squareImageAtPath($imagePath, $imagePath, 200);
     }
-    
-    $updated = updateUserForID($_SESSION['user_id'], $submittedDetails); 
-    if ($updated) echo "successful";
 }
-$user = getUserForID($_SESSION['user_id']);
 
+$errorMsg = NULL;
+if ($submitted) {
+    if (isValidEmail($_POST['emailAddress'])) {
+        updateUserForID($myUserID, $_POST);
+    } else {
+        $errorMsg = "<b>* Invalid email address</b><br><br>";
+    }
+}
+
+$user = getUserForID($myUserID);
 $profilePic = $user['profileImage'] ? $user['profileImage'] : "pictures/default.png";
-$fullName = $user['fullName'] ? $user['fullName'] : "No name";
+$fullName = $user['fullName'] ? $user['fullName'] : "No name set";
+$username = $user['username'] ? $user['username'] : "No username set";
+$emailAdd = $user['emailAddress'] ? $user['emailAddress'] : "No email address set";
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -50,40 +55,27 @@ $fullName = $user['fullName'] ? $user['fullName'] : "No name";
             <link rel="stylesheet" type="text/css" media="all" href="css/ie6.css"/><![endif]-->
 
     </head>
-    </head>
     <body>
          <?php echo $htmlNavigation; ?>
         
          <section id="logins" class="body">
             <div id="login" align="center">
-                <div id="backing" align="center">
+                <div id="backing" align="center" style="width:400px;background-color:rgba(32,44,75,0.90);">
                     <header>
-                        <h2>Account Settings</h2>
+                        <h2>Update Account</h2>
                     </header>
-                    <h3 style="color:#F9FAEE;">Change profile picture</h3>
-                    <form method="post" id="loginform">
-                        <?php
-                            echo "<img class='profilePic' width='100' height='100' src='". $profilePic ."' alt='Default Profile Pic'>";
-                            echo "<br>";
-                        ?>
-                    </form>
-                    <form method="post" enctype="multipart/form-data" action="editUser.php">
-                        <input type="file" name="avatar">
-                        <input type="submit" name="submit">
-                    </form>
-                    <br>
-                    <form method="post" id="updateform">
-                        <p>Update Full Name: </p>
-                        <input type="text" name="newUsername" value="New Full Name">
-                        <p>Update Username: </p>
-                        <input type="text" name="newUsername" value="New Username">
-                        <p>Update Email Address: </p>
-                        <input type="text" name="newUsername" value="New Email Address">
-                        
-                        <input type="submit" name="updateUser" value="Update">                        
+                    <?php echo "<img class='profilePic_user' src='". $profilePic ."' alt='Default Profile Pic'><br>$errorMsg"; ?>
+                    <form method="post" enctype="multipart/form-data">
+                        Avatar: <input type="file" name="avatar"><br><br>
+                        <input type="text" name="fullName" style="text-align:center; height:30px;" placeholder="Full Name" value="<?php echo $fullName; ?>">
+                        <input type="text" name="username" style="text-align:center; height:30px;" placeholder="Username" value="<?php echo $username; ?>">
+                        <input type="text" name="emailAddress" style="text-align:center; height:30px;" placeholder="Email Address" value="<?php echo $emailAdd; ?>">
+                        <br>
+                        <input type="submit" style="height:35px;" name="updateUser" value="UPDATE">                        
                     </form>
                 </div>
             </div>
-        </section> 
+        </section>
+        
     </body>
 </html>
