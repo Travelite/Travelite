@@ -126,7 +126,7 @@ $commentsCount = count($comments) ? count($comments) : 0;
                         $user = getUserForID($userID);
                         $userURL = "user.php?id=$userID";
                         $username = $user['username'];
-                        $body = $comment['comment'];
+                        $body = ['comment'];
                         $commentID = $comment['comment_id'];
                         
                         $reportURL = $isLoggedIn ? '<a href="report.php?commentID='.$commentID.'&postID='.$postID.'" target="_blank">Report comment</a>' : NULL;

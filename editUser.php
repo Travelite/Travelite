@@ -17,7 +17,11 @@ if ($submitted) {
         $image = $_FILES['avatar'];    
         $imageTempDir = $image['tmp_name'];
         $imageName = $image['name'];
-        $imagesDir = "pictures/";
+        $imagesDir = "avatars/";
+        
+        $permission = 0777;
+        if (!file_exists($imagesDir)) mkdir($imagesDir, $permission);
+        
         $imagePath = $imagesDir . $imageName;
 
         $uploaded = move_uploaded_file($imageTempDir, $imagePath);
@@ -38,7 +42,7 @@ if ($submitted) {
 $user = getUserForID($myUserID);
 
 $profilePicURL = $user['profileImage'] ? $user['profileImage'] : NULL;
-$profilePic = file_exists($profilePicURL) ? $postImgURL : "pictures/default.png";
+$profilePic = file_exists($profilePicURL) ? $profilePicURL : "images/default.png";
 
 $fullName = $user['fullName'] ? $user['fullName'] : "No name set";
 $username = $user['username'] ? $user['username'] : "No username set";
@@ -70,7 +74,7 @@ $emailAdd = $user['emailAddress'] ? $user['emailAddress'] : "No email address se
                     <header>
                         <h2>Update Account</h2>
                     </header>
-                    <?php echo "<img class='profilePic_user' src='". $profilePic ."' alt='Default Profile Pic'><br>$errorMsg"; ?>
+                    <?php echo '<img class="profilePic_user" src="' .$profilePic .'" alt="Default Profile Pic"><br>' .$errorMsg; ?>
                     <form method="post" enctype="multipart/form-data">
                         Avatar: <input type="file" name="avatar"><br><br>
                         <input type="text" name="fullName" style="text-align:center; height:30px;" placeholder="Full Name" value="<?php echo $fullName; ?>">

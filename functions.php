@@ -101,7 +101,7 @@ function loginUser($username, $password) {
 }
 
 function getUserForID($userID) {
-    $result = dbResultFromQuery("SELECT * FROM users WHERE user_id='$userID';");
+    $result = dbResultFromQuery("SELECT * FROM users WHERE user_id='$userID' LIMIT 1;");
     $user = mysqli_fetch_assoc($result);
     return $user;
 }
@@ -112,6 +112,19 @@ function updateUserForID($userID, $userDetails) {
         $updateString .= ", $key='$value'";
     }
     $result = dbResultFromQuery("UPDATE users SET user_id='$userID'$updateString WHERE user_id='$userID';");
+}
+
+
+
+/// U S E R   B A N S ///
+
+function getAllBannedUsers() {
+    $users = [];
+    $result = dbResultFromQuery("SELECT * FROM users WHERE banned=1;");
+    if ($result->num_rows > 0) {
+        $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+    return $users;
 }
 
 function banUser($userID) {
@@ -348,13 +361,13 @@ function updateReportedComment($reportID, $option) {
 function insertNewLocation($place, $desc, $lat, $long) {
     if (empty($place) || empty($desc) || empty($lat) || empty($long)) return 0;
     
-    $result = dbResultFromQuery("INSERT INTO tbl_places (place, description, lat, lng) VALUES ('$place', '$desc', '$lat', '$long');");
+    $result = dbResultFromQuery("INSERT INTO locations (place, description, lat, lng) VALUES ('$place', '$desc', '$lat', '$long');");
     return $result;
 }
 
 function getAllLocations() {
     $locations = [];
-    $result = dbResultFromQuery("SELECT * FROM tbl_places;");
+    $result = dbResultFromQuery("SELECT * FROM locations;");
     if ($result->num_rows > 0) {
         $locations = mysqli_fetch_all($result, MYSQLI_ASSOC);
     }

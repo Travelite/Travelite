@@ -13,21 +13,33 @@ if ($uploadedImg) {
     $image = $_FILES['post_image'];    
     $imageTempDir = $image['tmp_name'];
     $imageName = $image['name'];
-    $imagesDir = "user_pictures/";
-    $imagePath = $imagesDir . $imageName;
-    $thumbPath = $imagesDir . "thumbs/" . $imageName;
     
+    $imagesDir = "post_pictures/";
+    $thumbsDir = $imagesDir . "thumbs/";
+    
+    if (!file_exists($imagesDir)) {
+        $permission = 0777;
+        mkdir($imagesDir, $permission);
+        mkdir($thumbsDir, $permission);
+    }
+    
+    $imagePath = $imagesDir . $imageName;
+    $thumbPath = $thumbsDir . $imageName;
+    
+    //$extension = pathinfo($imgPath, PATHINFO_EXTENSION);
     $uploaded = move_uploaded_file($imageTempDir, $imagePath);
     if ($uploaded) {
         $imageURL = $imagePath;
         $thumbURL = $thumbPath;
         squareImageAtPath($imagePath, $thumbPath, 100);
+    } else {
+        
     }
 }
 
 $submitted = isset($_POST['submit']) ? true : false;
 $postTitle = isset($_POST['title']) ? $_POST['title'] : NULL;
-$postBody = isset($_POST['body']) ? $_POST['body'] : NULL;
+$postBody = isset($_POST['body']) ? nl2br($_POST['body']) : NULL;
 $responseMsg = NULL;
 
 if ($submitted) {

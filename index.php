@@ -46,6 +46,7 @@ $posts = getAllPosts();
                 $timestamp = wordedTimestamp($post['timestamp'], true);
                 $postURL = "post.php?id=" . $post['post_id'];
                 $postBody = $post['body'];
+                $postBody = str_replace('<br />', ' ', $postBody);
                 
                 $postImgURL = $post['thumbURL'] ? $post['thumbURL'] : NULL;
                 $postImage = file_exists($postImgURL) ? '<img class="uploaded_image" height="100" width="100" src="' .$postImgURL. '" alt="Post Image">' : NULL;

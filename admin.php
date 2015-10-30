@@ -27,6 +27,7 @@ if ($report_id && $report_option && $reporting) {
 
 $reportedUsers = getAllReportedUsers();
 $reportedComments = getAllReportedComments();
+$bannedUsers = getAllBannedUsers();
 
 ?>
 <!DOCTYPE html>
@@ -48,7 +49,7 @@ $reportedComments = getAllReportedComments();
         
         <section id="logins" class="body">
             <div id="login" align="center">
-                <div id="backing" align="center" style="width:95%;background-color:rgba(32,44,75,0.90);">
+                <div id="backing" align="center" style="width:90%;background-color:rgba(32,44,75,0.90);">
                     <?php 
                     
                     /// REPORTED USERS ///
@@ -108,6 +109,31 @@ $reportedComments = getAllReportedComments();
                         
                     } else {
                         echo "<p>No reported comments.</p>";
+                    }
+                    
+                    ################
+                    echo "<hr>";
+                    ################
+                    
+                    /// Banned Users ///
+                    
+                    echo "<br><h2>Banned Users</h2>";
+                    if ($bannedUsers) {
+                        echo '<table border="0">';
+                        echo '<th>User</th><th>Reason</th><th>Options</th>';
+                        foreach ($bannedUsers as $user) {
+                            $userID = $user['user_id'];
+                            $username = $user['username'];
+                            echo '<tr>';
+                            echo '<td><a href="user.php?id='.$userID.'" target="_blank">'.$username.'</td>';
+                            echo '<td style="width:100%;">Reason not specified</td>';
+                            echo '<td><a href="banUser.php?id='.$userID.'&ban=0">Unban</td>';
+                            echo '</tr>';
+                        }
+                        echo '</table><br>';
+                        
+                    } else {
+                        echo "<p>No banned users.</p>";
                     }
                     
                     ?>

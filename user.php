@@ -38,8 +38,8 @@ if ($isLoggedIn) {
     }
 }
 
-$profilePic = $user['profileImage'] ? $user['profileImage'] : "pictures/default.png";
-$profilePic = file_exists($profilePic) ? $profilePic : "pictures/default.png";
+$profilePic = $user['profileImage'] ? $user['profileImage'] : NULL;
+$profilePic = file_exists($profilePic) ? $profilePic : "images/default.png";
 
 $fullName = $user['fullName'] ? $user['fullName'] : "No name";
 $username = $user['username'] ? $user['username'] : "No username";
